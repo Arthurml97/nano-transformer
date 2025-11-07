@@ -22,10 +22,9 @@ Este modelo é um "Transformer Decoder-Only" (a mesma arquitetura do GPT) e incl
 
 1.  **Clone o repositório:**
     ```bash
-    git clone [https://github.com/Arthurml97/NOME_DO_REPO.git](https://github.com/Arthurml97/NOME_DO_REPO.git)
-    cd NOME_DO_REPO
+    git clone [https://github.com/Arthurml97/nano-transformer.git](https://github.com/Arthurml97/nano-transformer.git)
+    cd nano-transformer
     ```
-    *(Lembre-se de trocar `NOME_DO_REPO` pelo nome que você deu ao seu repositório)*
 
 2.  **Crie um ambiente virtual e instale as dependências:**
     ```bash
