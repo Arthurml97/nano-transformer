@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
+from tokenizers import Tokenizer
 
 # Using this to study transformers from scratch.
 # Based on the nanoGPT implementation by Andrej Karpathy.
@@ -43,14 +44,13 @@ torch.manual_seed(1337) # set the random seed for reproducibility
 with open('input.txt', 'r', encoding='utf-8') as f: # read the input text file 
     text = f.read() # store the text in a string variable
 
-# all the unique characters in the text
-chars = sorted(list(set(text))) # get a sorted list of unique characters
-vocab_size = len(chars) # the size of the vocabulary
-# create a mapping from characters to integers
-stoi = { ch:i for i,ch in enumerate(chars) } # char to int
-itos = { i:ch for i,ch in enumerate(chars) } # int to char 
-encode = lambda s: [stoi[c] for c in s] # encoder: take a string, output a list of integers
-decode = lambda l: ''.join([itos[i] for i in l]) # decoder: take a list of integers, output a string
+# tokenizer setup
+tokenizer = Tokenizer.from_file("bpe_tokenizer.json") # load the tokenizer from file
+vocab_size = tokenizer.get_vocab_size() # get the vocabulary size
+print("Vocab size:", vocab_size) # print the vocabulary size
+encode = lambda s: tokenizer.encode(s).ids # function to encode a string to a list of token ids
+decode = lambda l: tokenizer.decode(l) # function to decode a list of token ids to a string
+
 
 # Train and test splits
 data = torch.tensor(encode(text), dtype=torch.long)  # encode the entire text dataset and store it in a tensor
@@ -223,5 +223,10 @@ for iter in range(max_iters): # training loop
     optimizer.step() # update the parameters
 
 # generate some text after training
-context = torch.zeros((1, 1), dtype=torch.long, device=device) # starting context
+start_token_str = "[CLS]" # starting token string
+start_token_id = tokenizer.token_to_id(start_token_str) # get the token id for the starting token
+if start_token_id is None:
+    print(f"Token '{start_token_str}' not found in the tokenizer vocabulary.")
+    start_token_id = 0  # default to 0 if token not found
+context = torch.tensor([[start_token_id]], dtype=torch.long, device=device) # starting context
 print(decode(model.generate(context, max_new_tokens=500)[0].tolist())) # generate and decode 500 new tokens
