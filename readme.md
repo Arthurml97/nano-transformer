@@ -102,6 +102,13 @@ O processo foi feito em três estágios, aumentando o "cérebro" do modelo a cad
 | Adolescente | 0.8M | 1.9059 | `...were Neleus to the olders of Mount Iphig’s...` |
 | Adulto | 1.2M | **1.8842** | `...said Phemius," "and away bless wrookly upon the dutyings...` |
 
+### 💡 Conclusão da Jornada
+
+Este projeto foi uma demonstração prática de que:
+1.  **Hardware Limita o Design**: A falha no teste de 12 horas na CPU forçou uma abordagem de design de modelo "de baixo para cima" (bottom-up), focada em eficiência.
+2.  **O Overfitting é Visível**: Ao monitorar o `val loss`, foi possível identificar *exatamente* quando o modelo parou de aprender e começou a decorar (por volta de `step 3500-4000` nos modelos maiores).
+3.  **O Nível de Caractere Aprende Estrutura**: Mesmo sem saber o que é uma "palavra", o Transformer aprendeu regras de sintaxe, pontuação e formação de palavras do texto de entrada.
+
 ---
 
 ## 🔬 Experimento Final: Tokenização de Sub-palavra (BPE)
@@ -132,13 +139,6 @@ Prever 1 token de 90 (caracteres) era uma tarefa fácil para o meu "cérebro" de
 O modelo não tinha "poder cerebral" (parâmetros de computação) suficiente para aprender a lógica complexa de 5.000 tokens. Então, ele fez a única coisa que podia: desistiu de aprender e usou todo o seu poder para decorar o texto de treino. O texto gerado parece bom, mas é apenas "plágio" de frases memorizadas.
 
 Este experimento prova por que modelos que usam BPE (como o GPT) precisam de "cérebros" massivos (bilhões de parâmetros) para funcionar. Ele conclui minha jornada de otimização na CPU.
-
-### 💡 Conclusão da Jornada
-
-Este projeto foi uma demonstração prática de que:
-1.  **Hardware Limita o Design**: A falha no teste de 12 horas na CPU forçou uma abordagem de design de modelo "de baixo para cima" (bottom-up), focada em eficiência.
-2.  **O Overfitting é Visível**: Ao monitorar o `val loss`, foi possível identificar *exatamente* quando o modelo parou de aprender e começou a decorar (por volta de `step 3500-4000` nos modelos maiores).
-3.  **O Nível de Caractere Aprende Estrutura**: Mesmo sem saber o que é uma "palavra", o Transformer aprendeu regras de sintaxe, pontuação e formação de palavras do texto de entrada.
 
 ## 📜 Créditos
 
