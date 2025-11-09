@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
+from datetime import datetime
 
 # Using this to study transformers from scratch.
 # Based on the nanoGPT implementation by Andrej Karpathy.
@@ -44,13 +45,13 @@ with open('input.txt', 'r', encoding='utf-8') as f: # read the input text file
     text = f.read() # store the text in a string variable
 
 # all the unique characters in the text
-chars = sorted(list(set(text))) # get a sorted list of unique characters
-vocab_size = len(chars) # the size of the vocabulary
+words = sorted(list(set(text.split()))) # get the unique characters and sort them
+vocab_size = len(words) # size of the vocabulary
 # create a mapping from characters to integers
-stoi = { ch:i for i,ch in enumerate(chars) } # char to int
-itos = { i:ch for i,ch in enumerate(chars) } # int to char 
-encode = lambda s: [stoi[c] for c in s] # encoder: take a string, output a list of integers
-decode = lambda l: ''.join([itos[i] for i in l]) # decoder: take a list of integers, output a string
+wtoi = {w:i for i,w in enumerate(words)} # word to index mapping
+itow = {i:w for i,w in enumerate(words)} # index to word mapping
+encode = lambda s: [wtoi[w] for w in s.split()] # encoder: take a string and return a list of integers
+decode = lambda l: ' '.join([itow[i] for i in l]) # decoder: take a list of integers and return a string
 
 # Train and test splits
 data = torch.tensor(encode(text), dtype=torch.long)  # encode the entire text dataset and store it in a tensor
@@ -198,7 +199,9 @@ class NanoTransformer(nn.Module): # define the bigram language model
             # append sampled index to the running sequence
             idx = torch.cat((idx, next_idx), dim=1) # (B,T+1)
         return idx
-    
+
+current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S") # get the current time
+print(f"Training started at {current_time}") # print the start time
 model = NanoTransformer () # instantiate the model
 m = model.to(device) # move the model to the device
 print(sum(p.numel() for p in model.parameters())/1e6, 'M parameters') # print the number of parameters in millions
