@@ -102,6 +102,37 @@ O processo foi feito em três estágios, aumentando o "cérebro" do modelo a cad
 | Adolescente | 0.8M | 1.9059 | `...were Neleus to the olders of Mount Iphig’s...` |
 | Adulto | 1.2M | **1.8842** | `...said Phemius," "and away bless wrookly upon the dutyings...` |
 
+---
+
+## 🔬 Experimento Final: Tokenização de Sub-palavra (BPE)
+
+Como etapa final nos meus experimentos de CPU, eu criei esta branch (`subword-tokenization`) para testar o método que os modelos de linguagem modernos (GPT, Llama) usam.
+
+O objetivo era resolver o dilema dos meus dois primeiros testes:
+1.  **Modelo de Caractere:** Tinha um vocabulário pequeno (`~90`), mas os tokens não tinham significado.
+2.  **Modelo de Palavra:** Tinha tokens com significado, mas um vocabulário gigante (`~11.4k`) que causou overfitting imediato.
+
+Usando a biblioteca `tokenizers` da Hugging Face, eu treinei um tokenizador BPE (Byte-Pair Encoding) no meu `input.txt`. Eu criei um vocabulário "médio" de **5.000 sub-palavras**.
+
+Isso resultou em um modelo bem equilibrado, com `2.47M` de parâmetros (cerca de `1.2M` para o "cérebro" e `1.3M` para o "dicionário").
+
+### Resultado: Falha na Generalização (Cérebro vs. Tarefa)
+
+Este experimento foi um sucesso em *provar* a limitação final do meu hardware.
+
+* **Train Loss:** `0.24` (Quase perfeito. O modelo memorizou o livro.)
+* **Val Loss:** `13.5+` (Catastrófico. O modelo não aprendeu *nada* sobre a lógica do idioma.)
+
+### Análise da Falha
+
+O `val loss` explodiu porque, embora eu tenha equilibrado os *parâmetros* do modelo, a **complexidade da tarefa** aumentou 1000x.
+
+Prever 1 token de 90 (caracteres) era uma tarefa fácil para o meu "cérebro" de 1.2M de parâmetros. Prever 1 token de 5.000 (sub-palavras) é uma tarefa imensamente mais difícil.
+
+O modelo não tinha "poder cerebral" (parâmetros de computação) suficiente para aprender a lógica complexa de 5.000 tokens. Então, ele fez a única coisa que podia: desistiu de aprender e usou todo o seu poder para decorar o texto de treino. O texto gerado parece bom, mas é apenas "plágio" de frases memorizadas.
+
+Este experimento prova por que modelos que usam BPE (como o GPT) precisam de "cérebros" massivos (bilhões de parâmetros) para funcionar. Ele conclui minha jornada de otimização na CPU.
+
 ### 💡 Conclusão da Jornada
 
 Este projeto foi uma demonstração prática de que:
