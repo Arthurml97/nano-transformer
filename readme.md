@@ -108,6 +108,26 @@ Este projeto foi uma demonstração prática de que:
 1.  **Hardware Limita o Design**: A falha no teste de 12 horas na CPU forçou uma abordagem de design de modelo "de baixo para cima" (bottom-up), focada em eficiência.
 2.  **O Overfitting é Visível**: Ao monitorar o `val loss`, foi possível identificar *exatamente* quando o modelo parou de aprender e começou a decorar (por volta de `step 3500-4000` nos modelos maiores).
 3.  **O Nível de Caractere Aprende Estrutura**: Mesmo sem saber o que é uma "palavra", o Transformer aprendeu regras de sintaxe, pontuação e formação de palavras do texto de entrada.
+---
+
+## 🔬 Experimento: Tokenização por Palavra (`word-tokenization`)
+
+Como um passo além do nível de caractere, esta branch (`word-tokenization`) testa uma abordagem de **Tokenização por Palavra**.
+
+O código foi modificado para quebrar o `input.txt` em palavras únicas (`text.split()`), resultando em um vocabulário de **~11.418 tokens** (palavras).
+
+### Resultado: Overfitting Extremo
+
+O treinamento com esta abordagem falhou em generalizar, provando ser uma estratégia inviável para o tamanho do nosso modelo.
+
+* **Train Loss:** `0.14` (Memorização perfeita do livro de treino)
+* **Val Loss:** `16.0+` (Falha total em generalizar para dados novos)
+
+### Análise da Falha
+
+O fracasso ocorreu devido a um desequilíbrio extremo de parâmetros. O vocabulário de 11.418 palavras forçou o modelo a alocar `~2.9M` de seus `4.1M` de parâmetros apenas para as tabelas de "dicionário" (embeddings e lm_head).
+
+Isso deixou apenas `~1.2M` de parâmetros para o "cérebro" (os blocos Transformer). O modelo gastou 70% de sua capacidade em memorização e não teve recursos para aprender a *lógica* do idioma. Este experimento prova a necessidade de uma técnica mais avançada, como a **tokenização de sub-palavra (BPE)**, que mantém o vocabulário pequeno enquanto captura o significado das palavras.
 
 ## 📜 Créditos
 
