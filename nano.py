@@ -8,40 +8,22 @@ from tokenizers import Tokenizer
 # I not using that comments in production code normally.
 # if you dont have a gpu, you cant run this code efficiently, and it will be slow. So make sure you have a cuda-capable gpu (nvidia).
 
-# hyperparameters for a CUDA environment.
-# ------------------------------
-"""
 batch_size = 64 # how many indepedent sequences will we process in parallel
 block_size = 256 # what is the maximum context length for predictions
 max_iters = 5000 # number of training iterations
 eval_interval = 500 # how often to evaluate the loss
-learning_rate = 3e-4 # learning rate 
-device = 'cuda' if torch.cuda.is_available() else 'cpu' # use GPU if available
+learning_rate = 1e-4 # learning rate
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 eval_iters = 200 # number of iterations to estimate loss
 n_embd = 384 # the dimensionality of the character embedding vectors
 n_head = 6 # number of attention heads
 n_layer = 6 # number of transformer blocks
-dropout = 0.2 # dropout rate
-"""
-# ------------------------------
-
-# hyperparameters for a CPU environment.
-batch_size = 32 # how many indepedent sequences will we process in parallel
-block_size = 64 # what is the maximum context length for predictions
-max_iters = 10000 # number of training iterations
-eval_interval = 500 # how often to evaluate the loss
-learning_rate = 1e-3 # learning rate
-device = 'cpu' # use CPU
-eval_iters = 200 # number of iterations to estimate loss
-n_embd = 128 # the dimensionality of the character embedding vectors
-n_head = 6 # number of attention heads
-n_layer = 6 # number of transformer blocks
-dropout = 0.2 # dropout rate
+dropout = 0.3 # dropout rate
 # ------------------------------
 
 torch.manual_seed(1337) # set the random seed for reproducibility
 
-with open('input.txt', 'r', encoding='utf-8') as f: # read the input text file 
+with open('input.txt', 'r', encoding='utf-8') as f: # read the input text file
     text = f.read() # store the text in a string variable
 
 # tokenizer setup
@@ -84,7 +66,7 @@ def estimate_loss(): # estimate the loss on train and val sets
     return out # return the losses
 
 class Head(nn.Module): # single attention head
-    
+
     def __init__(self, head_size): # initialize the head
         super().__init__() # call the parent class constructor
         self.key = nn.Linear(n_embd, head_size, bias=False) # key projection
@@ -107,7 +89,7 @@ class Head(nn.Module): # single attention head
         v = self.value(x) # (B,T,head_size)
         out = wei @ v # (B,T,T) @ (B,T,head_size) -> (B,T,head_size)
         return out
-    
+
 class MultiHeadAttention(nn.Module): # multi-head attention
 
         def __init__(self, num_heads, head_size): # initialize the multi-head attention
@@ -115,13 +97,13 @@ class MultiHeadAttention(nn.Module): # multi-head attention
             self.heads = nn.ModuleList([Head(head_size) for _ in range(num_heads)]) # list of attention heads
             self.proj = nn.Linear(num_heads * head_size,n_embd) # output projection
             self.dropout = nn.Dropout( dropout) # dropout layer
-        
+
 
         def forward(self, x): # forward pass
             out = torch.cat([h.forward(x) for h in self.heads], dim=-1) # concatenate the outputs of the heads
             out = self.proj(out) # project the concatenated output
             return out
-            
+
 class FeedForward(nn.Module): # feedforward neural network
 
     def __init__(self, n_embd): # initialize the feedforward network
@@ -145,7 +127,7 @@ class Block(nn.Module): # transformer block
         self.ffwd = FeedForward(n_embd) # feedforward layer
         self.ln1 = nn.LayerNorm(n_embd) # layer normalization 1
         self.ln2 = nn.LayerNorm(n_embd) # layer normalization 2
-        
+
     def forward(self, x): # forward pass
         x = x + self.sa(self.ln1(x)) # multi-head attention
         x = x + self.ffwd(self.ln2(x)) # feedforward
@@ -162,7 +144,7 @@ class NanoTransformer(nn.Module): # define the bigram language model
         self.blocks = nn.Sequential(*[Block(n_embd, n_head=n_head) for _ in range(n_layer)]) # transformer blocks (4 heads per block)
         self.ln_f = nn.LayerNorm(n_embd) # final layer normalization
         self.lm_head = nn.Linear(n_embd, vocab_size) # linear layer to produce logits
-        
+
     def forward(self, idx, targets=None): # forward pass
         B, T = idx.shape # batch size and time steps
 
@@ -182,11 +164,11 @@ class NanoTransformer(nn.Module): # define the bigram language model
             loss = F.cross_entropy(logits, targets) # compute cross-entropy loss
 
         return logits, loss # return logits and loss
-    
+
     def generate(self, idx, max_new_tokens): # generate new tokens
         # idx is (B,T) array of indices in the current context
         for _ in range(max_new_tokens): # generate max_new_tokens tokens
-            idx_cond = idx[:, -block_size:] # crop idx to the last block_size tokens 
+            idx_cond = idx[:, -block_size:] # crop idx to the last block_size tokens
             # get the predictions
             logits, loss = self(idx_cond) # (B,T,C)
             # focus only on the last time step
@@ -198,7 +180,7 @@ class NanoTransformer(nn.Module): # define the bigram language model
             # append sampled index to the running sequence
             idx = torch.cat((idx, next_idx), dim=1) # (B,T+1)
         return idx
-    
+
 model = NanoTransformer () # instantiate the model
 m = model.to(device) # move the model to the device
 print(sum(p.numel() for p in model.parameters())/1e6, 'M parameters') # print the number of parameters in millions
