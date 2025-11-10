@@ -109,6 +109,18 @@ Este projeto foi uma demonstração prática de que:
 2.  **O Overfitting é Visível**: Ao monitorar o `val loss`, foi possível identificar *exatamente* quando o modelo parou de aprender e começou a decorar (por volta de `step 3500-4000` nos modelos maiores).
 3.  **O Nível de Caractere Aprende Estrutura**: Mesmo sem saber o que é uma "palavra", o Transformer aprendeu regras de sintaxe, pontuação e formação de palavras do texto de entrada.
 
+---
+## 📊 Google Colab e 3 Million Dataset
+
+Os experimentos anteriores provaram que o hardware (CPU) e o conjunto de dados (um único livro) eram os gargalos.
+
+Esta branch leva o projeto à sua conclusão lógica:
+1.  **Hardware:** O treinamento será movido para o Google Colab para usar uma GPU T4.
+2.  **Modelo:** Vou usar o "super-cérebro" de 14.5M de parâmetros (ativando os hiperparâmetros de CUDA).
+3.  **Dados:** O `input.txt` será expandido para uma Obra de Tolkien.
+
+O objetivo é, finalmente, treinar um modelo onde o `val loss` *diminua* de forma estável, provando que a arquitetura BPE é viável quando recebe os recursos adequados.
+
 ## 📜 Créditos
 
 Este código foi desenvolvido como parte de um estudo aprofundado do repositório [nanoGPT](https://github.com/karpathy/nanoGPT) de Andrej Karpathy, adaptado para um ambiente de CPU e focado na análise iterativa de hiperparâmetros.
